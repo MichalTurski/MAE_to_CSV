@@ -1,6 +1,7 @@
 import os
 import xmlschema
 import pandas as pd
+import re
 
 class MAE_parser:
     def __init__(self):
@@ -12,8 +13,8 @@ class MAE_parser:
         annotations_list = tags_dict[category]
         df = pd.DataFrame(annotations_list)
         df = df.rename(columns={"@id": "id", "@spans": "spans", "@text": "text", "@RodzajAC": "RodzajAC"})
-        df['begin'] = df['spans'].apply(lambda x: x.split('~')[0])
-        df['end'] = df['spans'].apply(lambda x: x.split('~')[1])
+        df['begin'] = df['spans'].apply(lambda x: int(re.split('~|,', x)[0]))
+        df['end'] = df['spans'].apply(lambda x: int(re.split('~|,', x)[1]))
         df = df.drop(['spans'], axis=1)
         df['category'] = category
         return df
@@ -29,6 +30,7 @@ class MAE_parser:
                          self.__category_to_df__(tags_dict, 'Method')]
         anot_df = pd.concat(anot_dfs_list, sort=False).reset_index(drop=True)
         anot_df.sort_values(by=['begin'], inplace=True)
+        anot_df.reset_index(drop=True, inplace=True)
         return anot_df
 
 
