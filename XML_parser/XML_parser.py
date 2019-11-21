@@ -4,7 +4,8 @@ import pandas as pd
 
 class MAE_parser:
     def __init__(self):
-        self.mae_schema = xmlschema.XMLSchema('MAE.xsd')
+        curr_path = os.path.dirname(os.path.abspath(__file__))
+        self.mae_schema = xmlschema.XMLSchema(os.path.join(curr_path, 'MAE.xsd'))
 
     @staticmethod
     def __category_to_df__(tags_dict, category):
