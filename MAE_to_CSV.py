@@ -36,9 +36,11 @@ def get_objects(senetence_anots, obj_type):
             df = df.append(pd.Series(), ignore_index=True)
     return df
 
-def relational_sentence_genetator(anot_df):
+
+def relational_sentence_generator(anot_df):
     # It returns each possible combination of entities (does a cartesian product). Therefore we call it Cogito XD.
     for senetence_anots in sentence_anots_generator(anot_df):
+        # col_idx_dict = {col: i for i, col in enumerate(senetence_anots.columns)}
         active_actor_df = get_objects(senetence_anots, 'Attribute')
         aim_df = get_objects(senetence_anots, 'aIm')
         deontic_df = get_objects(senetence_anots, 'Deontic')
@@ -46,19 +48,22 @@ def relational_sentence_genetator(anot_df):
         method_df = get_objects(senetence_anots, 'Method')
         passive_actor_df = get_objects(senetence_anots, 'aCtor')
         object_df = get_objects(senetence_anots, 'oBject')
-        for active_actor in active_actor_df.iterrows():
-            for aim in aim_df.iterrows():
-                for deontic in deontic_df.iterrows():
-                    for ac in ac_df.iterrows():
-                        for method in method_df.iterrows():
-                            for passive_actor in passive_actor_df.iterrows():
-                                for obj in object_df.iterrows():
-                                    yield (active_actor, aim, deontic, ac, method, passive_actor, obj)
+        for _, active_actor in active_actor_df.iterrows():
+            for _, aim in aim_df.iterrows():
+                for _, deontic in deontic_df.iterrows():
+                    for _, ac in ac_df.iterrows():
+                        for _, method in method_df.iterrows():
+                            for _, passive_actor in passive_actor_df.iterrows():
+                                for _, obj in object_df.iterrows():
+                                    # TODO: replace None with aim_category
+                                    yield (active_actor['text'], aim['text'], None, deontic['text'], ac['text'],
+                                           method['text'], passive_actor['text'], obj['text'])
 
 
 @click.command()
 @click.argument('xml_directory', type=click.Path(exists=True))
-def main(xml_directory):
+@click.argument('output_file', type=click.File('w'))
+def main(xml_directory, output_file):
     parser = XML_parser.MAE_parser()
     xml_files = [os.path.join(xml_directory, file) for file in os.listdir(xml_directory) if file.endswith(".xml")]
     anot_dfs =[]
@@ -70,9 +75,12 @@ def main(xml_directory):
     anot_df = pd.concat(anot_dfs, sort=False).reset_index(drop=True)
 
     # print_stats(anot_df)
-    for i, _ in enumerate(relational_sentence_genetator(anot_df)):
-        pass
-    print(i)
+    relational_sentences_list = []
+    for i, sentence in enumerate(relational_sentence_generator(anot_df)):
+        relational_sentences_list.append(sentence)
+    df = pd.DataFrame(relational_sentences_list, columns=['active_actor', 'aim', 'aim_category', 'deontic',
+                                                          'active_condition', 'method', 'passive_actor', 'object'])
+    df.to_csv(output_file)
 
 
 if __name__ == '__main__':
