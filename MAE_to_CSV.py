@@ -28,59 +28,55 @@ def print_stats(anot_df):
               f'active condition num = {ac_num}, method num = {method_num}')
 
 
-def get_objects(senetence_anots, obj_type):
+def anot_text_generator(senetence_anots, anot_type):
     emptyable = {'Deontic', 'ActivCondition', 'Method', 'oBject'}
-    df = senetence_anots.loc[senetence_anots['category'] == obj_type]
-    if obj_type in emptyable:
+    df = senetence_anots.loc[senetence_anots['category'] == anot_type]
+    if anot_type in emptyable:
         if df.empty:
             df = df.append(pd.Series(), ignore_index=True)
-    return df
+    for _, row in df.iterrows():
+        yield row['text']
 
 
 def relational_sentence_generator(anot_df):
     # It returns each possible combination of entities (does a cartesian product). Therefore we call it Cogito XD.
     for senetence_anots in sentence_anots_generator(anot_df):
-        # col_idx_dict = {col: i for i, col in enumerate(senetence_anots.columns)}
-        active_actor_df = get_objects(senetence_anots, 'Attribute')
-        aim_df = get_objects(senetence_anots, 'aIm')
-        deontic_df = get_objects(senetence_anots, 'Deontic')
-        ac_df = get_objects(senetence_anots, 'ActivCondition')
-        method_df = get_objects(senetence_anots, 'Method')
-        passive_actor_df = get_objects(senetence_anots, 'aCtor')
-        object_df = get_objects(senetence_anots, 'oBject')
-        for _, active_actor in active_actor_df.iterrows():
-            for _, aim in aim_df.iterrows():
-                for _, deontic in deontic_df.iterrows():
-                    for _, ac in ac_df.iterrows():
-                        for _, method in method_df.iterrows():
-                            for _, passive_actor in passive_actor_df.iterrows():
-                                for _, obj in object_df.iterrows():
+        for active_actor in anot_text_generator(senetence_anots, 'Attribute'):
+            for aim in anot_text_generator(senetence_anots, 'aIm'):
+                for deontic in anot_text_generator(senetence_anots, 'Deontic'):
+                    for ac in anot_text_generator(senetence_anots, 'ActivCondition'):
+                        for method in anot_text_generator(senetence_anots, 'Method'):
+                            for passive_actor in anot_text_generator(senetence_anots, 'aCtor'):
+                                for obj in anot_text_generator(senetence_anots, 'oBject'):
                                     # TODO: replace None with aim_category
-                                    yield (active_actor['text'], aim['text'], None, deontic['text'], ac['text'],
-                                           method['text'], passive_actor['text'], obj['text'])
+                                    yield (active_actor, aim, None, deontic, ac, method, passive_actor, obj)
+
+
+def read_xmls(xml_directory):
+    parser = XML_parser.MAE_parser()
+    xml_files = [os.path.join(xml_directory, file) for file in os.listdir(xml_directory) if file.endswith(".xml")]
+    anot_dfs = []
+
+    for i, xml_file in enumerate(xml_files):
+        anot_df = parser.parse_file(xml_file)
+        anot_df['xml_num'] = i + 1
+        anot_dfs.append(anot_df)
+    anot_df = pd.concat(anot_dfs, sort=False).reset_index(drop=True)
+    return anot_df
 
 
 @click.command()
 @click.argument('xml_directory', type=click.Path(exists=True))
 @click.argument('output_file', type=click.File('w'))
 def main(xml_directory, output_file):
-    parser = XML_parser.MAE_parser()
-    xml_files = [os.path.join(xml_directory, file) for file in os.listdir(xml_directory) if file.endswith(".xml")]
-    anot_dfs =[]
-
-    for i, xml_file in enumerate(xml_files):
-        anot_df = parser.parse_file(xml_file)
-        anot_df['xml_num'] = i+1
-        anot_dfs.append(anot_df)
-    anot_df = pd.concat(anot_dfs, sort=False).reset_index(drop=True)
-
+    anot_df = read_xmls(xml_directory)
     # print_stats(anot_df)
     relational_sentences_list = []
     for i, sentence in enumerate(relational_sentence_generator(anot_df)):
         relational_sentences_list.append(sentence)
     df = pd.DataFrame(relational_sentences_list, columns=['active_actor', 'aim', 'aim_category', 'deontic',
                                                           'active_condition', 'method', 'passive_actor', 'object'])
-    df.to_csv(output_file)
+    df.to_csv(output_file, index=False)
 
 
 if __name__ == '__main__':
