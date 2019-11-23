@@ -20,6 +20,7 @@ class MAE_parser:
         return df
 
     def parse_file(self, file_path):
+        self.mae_schema.validate(file_path)
         mae_dict = self.mae_schema.to_dict(file_path)
         tags_dict = mae_dict['TAGS']
         anot_dfs_list = [self.__category_to_df__(tags_dict, 'SEPARATOR'),
