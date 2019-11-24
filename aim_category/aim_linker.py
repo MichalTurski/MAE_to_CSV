@@ -19,27 +19,30 @@ class Aim_linker:
 
     def create_aim_dict(self):
         self.aim_df.drop_duplicates(AIM, inplace=True)
-        for aim in tqdm(self.aim_df[AIM][:5]):
+        for aim in tqdm(self.aim_df[AIM]):
             aim = get_verb_standard_form(aim)
             aim_id, hiponimia, hiperonimia = get_homonimia_and_hiperonimia(aim)
             self.__update_aim_dict(aim, aim_id, hiponimia, hiperonimia)
-        print(self.aim_df[AIM])
+        print(self.aim_dict)
+        s = set(val for val in self.aim_dict.values())
+        print(len(self.aim_dict), len(s))
 
     def __update_aim_dict(self, aim, aim_id, hiponimia, hiperonimia):
         self.__add_aim_id_2_aim_name_if_not_present(aim_id, aim)
         self.aim_dict[aim_id] = aim
 
         for verb in hiponimia:
+            self.aim_dict[aim_id] = get_simple_verb_form(verb[1])
             if verb[0] in self.aim_dict:
                 self.__add_aim_id_2_aim_name_if_not_present(verb[0], get_simple_verb_form(verb[1]))
-                self.aim_dict[aim_id] = get_simple_verb_form(verb[1])
+                print(f"\nhimopnimia {self.aim_id_2_aim_name[aim_id]} --> {get_simple_verb_form(verb[1])}")
                 continue
 
         for verb in hiperonimia:
+            self.aim_dict[verb[0]] = self.aim_dict[aim_id]
             if verb[0] in self.aim_dict:
                 self.__add_aim_id_2_aim_name_if_not_present(verb[0], get_simple_verb_form(verb[1]))
-                self.aim_dict[verb[0]] = self.aim_dict[aim_id]
-        print(self.aim_dict)
+                print(f"\nhiperpnimia {get_simple_verb_form(verb[1])} --> {self.aim_id_2_aim_name[aim_id]}")
 
     def __add_aim_id_2_aim_name_if_not_present(self, aim_id, aim):
         if aim_id not in self.aim_id_2_aim_name:
