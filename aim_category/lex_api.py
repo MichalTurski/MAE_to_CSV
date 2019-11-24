@@ -9,13 +9,14 @@ ALL = 'all'
 RESULTS = 'results'
 SYNSETS = 'synsets'
 HIPONIMIA = 'hiponimia'
+HIPERONIMIA = 'hiperonimia'
 RELATED = 'related'
 ANALYSE = 'analyse'
 
 
 # TODO: think about 'się', ':v1'
 # TODO: domain id = 39
-
+# TODO: more synsets than one. (sorting by domains)
 
 def get_verb_standard_form(aim):
     # to omit 'się'
@@ -28,15 +29,18 @@ def get_verb_standard_form(aim):
     return resp.json()[RESULTS][ANALYSE][0][1]
 
 
-def get_hiperonims(aim):
+def get_homonimia_and_hiperonimia(aim):
     # to omit versioning 'kierować:v1'
     aim = aim.split(':')[0]
 
     resp = requests.post(BASE_URL, json={"task": ALL, "tool": PLWORDNET, "lexeme": aim})
     if resp.status_code != 200:
         raise ApiError(resp.status_code)
-
-    return resp.json()[RESULTS][SYNSETS][0][RELATED][HIPONIMIA]
+    # print(resp.json())
+    related = resp.json()[RESULTS][SYNSETS][0][RELATED]
+    hiponimia = [] if HIPONIMIA not in related else related[HIPONIMIA]
+    hiperonimia = [] if HIPERONIMIA not in related else related[HIPERONIMIA]
+    return resp.json()[RESULTS][SYNSETS][0]['id'], hiponimia, hiperonimia
 
 
 class ApiError(Exception):
