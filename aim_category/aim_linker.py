@@ -1,4 +1,3 @@
-import pandas as pd
 from tqdm import tqdm
 
 from aim_category.lex_api import get_verb_standard_form, get_all_hiponimia, get_aim_id
@@ -70,5 +69,4 @@ class AimLinker:
     def __add_aim_name_2_aim_id_if_not_present(self, aim_name, aim_id):
         self.aim_name_2_aim_id = add_if_not_present(aim_name, aim_id, self.aim_name_2_aim_id)
 
-
-linker = AimLinker(pd.read_csv("out.csv"))
+# linker = AimLinker(pd.read_csv("out.csv"))
