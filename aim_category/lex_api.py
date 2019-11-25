@@ -1,5 +1,7 @@
 import requests
 
+from aim_category.utils import get_simple_verb_form
+
 BASE_URL = 'http://ws.clarin-pl.eu/lexrest/lex'
 
 MORFEUSZ = 'morfeusz'
@@ -17,15 +19,6 @@ ANALYSE = 'analyse'
 # TODO: think about 'się', ':v1'
 # TODO: domain id = 39
 # TODO: more synsets than one. (sorting by domains)
-
-def get_verb_standard_forms(series):
-    for i, aim in enumerate(series):
-        series[i] = get_verb_standard_form(aim)
-    return series
-
-
-def get_simple_verb_form(verb):
-    return verb.split('.')[0][1:]
 
 def get_verb_standard_form(aim):
     # to omit 'się'
@@ -54,7 +47,6 @@ def get_homonimia_and_hiperonimia(aim):
 
 def get_all_hiponimia(aim):
     res = []
-    tab = []
     hiponimia = [1]
     while hiponimia:
         resp = requests.post(BASE_URL, json={"task": ALL, "tool": PLWORDNET, "lexeme": aim})
