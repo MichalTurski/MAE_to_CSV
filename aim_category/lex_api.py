@@ -20,6 +20,9 @@ ANALYSE = 'analyse'
 # TODO: domain id = 39
 # TODO: more synsets than one. (sorting by domains)
 
+# TODO: get only ID of synset (possibly from higher api than only wordnet itself)
+# TODO: allow user add predefined aim_categories by file
+
 def get_verb_standard_form(aim):
     # to omit 'się'
     aim = aim.split()[0]
@@ -29,6 +32,15 @@ def get_verb_standard_form(aim):
         raise ApiError(resp.status_code)
 
     return resp.json()[RESULTS][ANALYSE][0][1]
+
+
+def get_aim_id(aim):
+    # to omit versioning 'kierować:v1'
+    aim = aim.split(':')[0]
+    resp = requests.post(BASE_URL, json={"task": ALL, "tool": PLWORDNET, "lexeme": aim})
+    if resp.status_code != 200:
+        raise ApiError(resp.status_code)
+    return resp.json()[RESULTS][SYNSETS][0]['id']
 
 
 def get_homonimia_and_hiperonimia(aim):
