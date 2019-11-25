@@ -1,7 +1,10 @@
 import os
+
 import click
-import XML_parser.XML_parser as XML_parser
 import pandas as pd
+
+import XML_parser.XML_parser as XML_parser
+from aim_category.aim_linker import Aim_linker
 
 METHOD_KEY = 'Method'
 ACTIVE_CONDITION_KEY = 'ActivCondition'
@@ -49,7 +52,7 @@ def anot_text_generator(senetence_anots, anot_type):
         yield row['text']
 
 
-def relational_sentence_generator(anot_df):
+def relational_sentence_generator(anot_df, linker):
     # It returns each possible combination of entities (does a cartesian product). Therefore we call it Cogito XD.
     for i, senetence_anots in enumerate(sentence_anots_generator(anot_df)):
         for active_actor in anot_text_generator(senetence_anots, ATTRIBUTE_KEY):
@@ -60,7 +63,8 @@ def relational_sentence_generator(anot_df):
                             for passive_actor in anot_text_generator(senetence_anots, ACTOR_KEY):
                                 for obj in anot_text_generator(senetence_anots, OBJECT_KEY):
                                     # TODO: replace None with aim_category
-                                    yield (i+1, active_actor, aim, None, deontic, ac, method, passive_actor, obj)
+                                    yield (i + 1, active_actor, aim, linker.get_aim_category(aim), deontic, ac, method,
+                                           passive_actor, obj)
 
 
 def read_xmls(xml_directory):
@@ -76,14 +80,19 @@ def read_xmls(xml_directory):
     return anot_df
 
 
+def create_aim_linker(df):
+    aim_df = df.loc[df[CATEGORY_KEY] == AIM_KEY]
+    return Aim_linker(aim_df[['text']])
+
 @click.command()
 @click.argument('xml_directory', type=click.Path(exists=True))
 @click.argument('output_file', type=click.File('w'))
 def main(xml_directory, output_file):
     anot_df = read_xmls(xml_directory)
     # print_stats(anot_df)
+    linker = create_aim_linker(anot_df)
     relational_sentences_list = []
-    for i, sentence in enumerate(relational_sentence_generator(anot_df)):
+    for i, sentence in enumerate(relational_sentence_generator(anot_df, linker)):
         relational_sentences_list.append(sentence)
     df = pd.DataFrame(relational_sentences_list, columns=['sentence_num', 'active_actor', 'aim', 'aim_category',
                                                           'deontic', 'active_condition', 'method', 'passive_actor',
