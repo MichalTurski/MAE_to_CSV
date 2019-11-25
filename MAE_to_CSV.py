@@ -4,7 +4,7 @@ import click
 import pandas as pd
 
 import XML_parser.XML_parser as XML_parser
-from aim_category.aim_linker import Aim_linker
+from aim_category.aim_linker import AimLinker
 
 METHOD_KEY = 'Method'
 ACTIVE_CONDITION_KEY = 'ActivCondition'
@@ -82,7 +82,7 @@ def read_xmls(xml_directory):
 
 def create_aim_linker(df):
     aim_df = df.loc[df[CATEGORY_KEY] == AIM_KEY]
-    return Aim_linker(aim_df[['text']])
+    return AimLinker(aim_df[['text']])
 
 @click.command()
 @click.argument('xml_directory', type=click.Path(exists=True))

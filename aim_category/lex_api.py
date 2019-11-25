@@ -37,26 +37,14 @@ def get_verb_standard_form(aim):
 def get_aim_id(aim):
     # to omit versioning 'kierować:v1'
     aim = aim.split(':')[0]
+
     resp = requests.post(BASE_URL, json={"task": ALL, "tool": PLWORDNET, "lexeme": aim})
     if resp.status_code != 200:
         raise ApiError(resp.status_code)
     return resp.json()[RESULTS][SYNSETS][0]['id']
 
 
-def get_homonimia_and_hiperonimia(aim):
-    # to omit versioning 'kierować:v1'
-    aim = aim.split(':')[0]
-
-    resp = requests.post(BASE_URL, json={"task": ALL, "tool": PLWORDNET, "lexeme": aim})
-    if resp.status_code != 200:
-        raise ApiError(resp.status_code)
-    # print(resp.json())
-    related = resp.json()[RESULTS][SYNSETS][0][RELATED]
-    hiponimia = [] if HIPONIMIA not in related else related[HIPONIMIA]
-    hiperonimia = [] if HIPERONIMIA not in related else related[HIPERONIMIA]
-    return resp.json()[RESULTS][SYNSETS][0]['id'], hiponimia, hiperonimia
-
-
+# TODO: refactor
 def get_all_hiponimia(aim):
     res = []
     hiponimia = [1]
