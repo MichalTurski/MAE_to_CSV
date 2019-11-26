@@ -28,11 +28,9 @@ class ApiError(Exception):
 
 
 # TODO: think about 'się', ':v1'
-# TODO: domain id = 39
 # TODO: more synsets than one. (sorting by domains)
-
 # TODO: get only ID of synset (possibly from higher api than only wordnet itself)
-# TODO: allow user add predefined aim_categories by file
+
 
 def create_api_post_request(BASE_URL, json):
     resp = requests.post(BASE_URL, json=json)
@@ -56,25 +54,44 @@ def get_aim_id(aim):
     return resp.json()[RESULTS][SYNSETS][0]['id']
 
 
-# TODO: refactor
-def get_all_hiponimia(aim):
+def best_ancestor_not_found(hiponimia, ancestors):
+    return hiponimia or not ancestors
+
+
+def get_ancestors(aim):
     ancestors = hiponimia = []
-    while hiponimia or not ancestors:
+    while best_ancestor_not_found(hiponimia, ancestors):
         resp = create_api_post_request(BASE_URL, json={"task": ALL, "tool": PLWORDNET, "lexeme": aim})
-        try:
-            related = resp.json()[RESULTS][SYNSETS][0][RELATED]
-        except IndexError:
-            break
-        hiponimia = [] if HIPONIMIA not in related else related[HIPONIMIA]
-        if hiponimia:
-            hiponim_id, hiponim_name = hiponimia[0][VERB_ID_INDEX], get_simple_verb_form(hiponimia[0][VERB_NAME_INDEX])
-            if (hiponim_id, hiponim_name) not in ancestors:
-                aim = hiponim_name
-                ancestors.append((hiponim_id, aim))
+        related = get_related_synsets(resp)
+        if related:
+            hiponimia = [] if HIPONIMIA not in related else related[HIPONIMIA]
+            next_ancestor = add_ancestor(ancestors, hiponimia)
+            if next_ancestor:
+                ancestors.append(next_ancestor)
             else:
                 break
+        else:
+            break
     return ancestors
 
 
-def add_ancestor():
-    pass
+def add_ancestor(ancestors, hiponimia):
+    if hiponimia:
+        hiponim = get_best_hiponim(hiponimia)
+        if hiponim in ancestors:
+            return None
+        else:
+            return hiponim
+
+
+# TODO: best domain id = 39 - proper order
+# TODO: also - allow user add predefined aim_categories by file
+def get_best_hiponim(hiponimia):
+    return hiponimia[0][VERB_ID_INDEX], get_simple_verb_form(hiponimia[0][VERB_NAME_INDEX])
+
+
+def get_related_synsets(resp):
+    try:
+        return resp.json()[RESULTS][SYNSETS][0][RELATED]
+    except IndexError:
+        return None

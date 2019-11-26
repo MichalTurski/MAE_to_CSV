@@ -1,6 +1,6 @@
 from tqdm import tqdm
 
-from aim_category.lex_api import get_verb_standard_form, get_all_hiponimia, get_aim_id
+from aim_category.lex_api import get_verb_standard_form, get_ancestors, get_aim_id
 from aim_category.utils import add_if_not_present
 
 AIM_KEY = "text"
@@ -22,7 +22,7 @@ class AimLinker:
         return self.aim_dict[aim_id]
 
     def get_ancestors(self, standardized_aim):
-        return get_all_hiponimia(standardized_aim)
+        return get_ancestors(standardized_aim)
 
     def __create_aim_dict(self):
         self.__initialize_aim_df()
