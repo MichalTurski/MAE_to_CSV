@@ -18,6 +18,8 @@ ANALYSE = 'analyse'
 VERB_ID_INDEX = 0
 VERB_NAME_INDEX = 1
 
+MORFEUSZ_VERB_FLAG = 'fin'
+
 
 class ApiError(Exception):
     def __init__(self, status):
@@ -40,13 +42,34 @@ def create_api_post_request(BASE_URL, json):
 
 
 def get_verb_standard_form(aim):
-    # to omit 'się' TODO: merge with '_'
-    aim = aim.split()[0]
-    resp = create_api_post_request(BASE_URL, json={"task": ALL, "tool": MORFEUSZ, "lexeme": aim})
-    return resp.json()[RESULTS][ANALYSE][0][1]
+    standardized_aim = None
+
+    found_sie = 0
+    found_nie = 0
+    aim_splitted = aim.split()
+    aim_to_process = aim_splitted[0]
+
+    if aim_splitted[0] == "nie":
+        found_nie = 1
+        aim_to_process = aim_splitted[1]
+    if aim.find("się") > -1:
+        found_sie = 1
+
+    resp = create_api_post_request(BASE_URL, json={"task": ALL, "tool": MORFEUSZ, "lexeme": aim_to_process})
+    list_of_words = resp.json()[RESULTS][ANALYSE]
+    for word_array in list_of_words:
+        flags = word_array[2].split(":")
+        if MORFEUSZ_VERB_FLAG in flags:
+            standardized_aim = word_array[1].split(":")[0]
+
+    if found_nie:
+        standardized_aim = "nie " + standardized_aim
+    if found_sie:
+        standardized_aim = standardized_aim + " się"
+
+    return standardized_aim
 
 
-# TODO: dziewczyno 'ma'!
 def get_aim_id(aim):
     # to omit versioning 'kierować:v1'
     aim = aim.split(':')[0]
