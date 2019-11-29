@@ -1,5 +1,8 @@
+import json
+
 import requests
 
+from aim_category.mocked_api import get_mocked_response
 from aim_category.utils import get_simple_verb_form
 
 BASE_URL = 'http://ws.clarin-pl.eu/lexrest/lex'
@@ -17,9 +20,10 @@ ANALYSE = 'analyse'
 
 VERB_ID_INDEX = 0
 VERB_NAME_INDEX = 1
+NONE_CATEGORY_KEY = -1
 
 MORFEUSZ_VERB_FLAG = 'fin'
-
+MORFEUSZ_INF_FLAG = 'inf'
 
 class ApiError(Exception):
     def __init__(self, status):
@@ -41,8 +45,8 @@ def create_api_post_request(BASE_URL, json):
     return resp
 
 
-def get_verb_standard_form(aim):
-    standardized_aim = None
+def get_verb_infinitive_form(aim):
+    aim_infinitive = None
 
     found_sie = 0
     found_nie = 0
@@ -59,22 +63,27 @@ def get_verb_standard_form(aim):
     list_of_words = resp.json()[RESULTS][ANALYSE]
     for word_array in list_of_words:
         flags = word_array[2].split(":")
-        if MORFEUSZ_VERB_FLAG in flags:
-            standardized_aim = word_array[1].split(":")[0]
+        if MORFEUSZ_VERB_FLAG in flags or MORFEUSZ_INF_FLAG in flags:
+            aim_infinitive = word_array[1].split(":")[0]
 
     if found_nie:
-        standardized_aim = "nie " + standardized_aim
+        aim_infinitive = "nie " + aim_infinitive
     if found_sie:
-        standardized_aim = standardized_aim + " się"
+        aim_infinitive = aim_infinitive + " się"
 
-    return standardized_aim
+    return aim_infinitive
 
 
-def get_aim_id(aim):
-    # to omit versioning 'kierować:v1'
-    aim = aim.split(':')[0]
-    resp = create_api_post_request(BASE_URL, json={"task": ALL, "tool": PLWORDNET, "lexeme": aim})
-    return resp.json()[RESULTS][SYNSETS][0]['id']
+def get_aim_infinitive_id(aim_infinitive):
+    if aim_infinitive:
+        # to omit versioning 'kierować:v1'
+        aim_infinitive = aim_infinitive.split(':')[0]
+        # TODO: change to offline when possible, to API when possible
+        # resp = create_api_post_request(BASE_URL, json={"task": ALL, "tool": PLWORDNET, "lexeme": aim_infinitive})
+        # return resp.json()[RESULTS][SYNSETS][0]['id']
+        resp = get_mocked_response(aim_infinitive)
+        return resp[RESULTS][SYNSETS][0]['id']
+    return NONE_CATEGORY_KEY
 
 
 def best_ancestor_not_found(hiponimia, ancestors):
@@ -84,7 +93,8 @@ def best_ancestor_not_found(hiponimia, ancestors):
 def get_ancestors(aim):
     ancestors = hiponimia = []
     while best_ancestor_not_found(hiponimia, ancestors):
-        resp = create_api_post_request(BASE_URL, json={"task": ALL, "tool": PLWORDNET, "lexeme": aim})
+        # resp = create_api_post_request(BASE_URL, json={"task": ALL, "tool": PLWORDNET, "lexeme": aim})
+        resp = get_mocked_response(aim)
         related = get_related_synsets(resp)
         if related:
             hiponimia = [] if HIPONIMIA not in related else related[HIPONIMIA]
@@ -115,6 +125,8 @@ def get_best_hiponim(hiponimia):
 
 def get_related_synsets(resp):
     try:
-        return resp.json()[RESULTS][SYNSETS][0][RELATED]
+        # TODO: change to offline when possible, to API when possible
+        # return resp.json()[RESULTS][SYNSETS][0][RELATED]
+        return resp[RESULTS][SYNSETS][0][RELATED]
     except IndexError:
         return None
