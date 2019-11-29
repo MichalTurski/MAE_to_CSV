@@ -65,11 +65,10 @@ def get_verb_infinitive_form(aim):
         flags = word_array[2].split(":")
         if MORFEUSZ_VERB_FLAG in flags or MORFEUSZ_INF_FLAG in flags:
             aim_infinitive = word_array[1].split(":")[0]
-
-    if found_nie:
-        aim_infinitive = "nie " + aim_infinitive
-    if found_sie:
-        aim_infinitive = aim_infinitive + " się"
+            if found_nie:
+                aim_infinitive = "nie " + aim_infinitive
+            if found_sie:
+                aim_infinitive = aim_infinitive + " się"
 
     return aim_infinitive
 
@@ -101,6 +100,7 @@ def get_ancestors(aim):
             next_ancestor = add_ancestor(ancestors, hiponimia)
             if next_ancestor:
                 ancestors.append(next_ancestor)
+                aim = next_ancestor[1]
             else:
                 break
         else:

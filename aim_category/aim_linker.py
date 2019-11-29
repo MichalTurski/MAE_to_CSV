@@ -20,6 +20,7 @@ class AimLinker:
         self.__create_aim_dict()
 
     def get_aim_category(self, aim):
+        # TODO: refactor code in order not to call API twice
         if not aim:
             return None
         if aim not in self.aim_to_aim_infinitive:
@@ -48,10 +49,10 @@ class AimLinker:
         self.aim_df.drop_duplicates(AIM_INFINITIVE_KEY, inplace=True)
 
     def __create_standardized_aim_column(self):
-        return self.aim_df.apply(lambda df: get_verb_infinitive_form(df[AIM_KEY]), axis=1)
+        return self.aim_df.apply(lambda row: get_verb_infinitive_form(row[AIM_KEY]), axis=1)
 
     def __create_aim_category_column(self):
-        return self.aim_df.apply(lambda df: self.get_aim_category(df[AIM_INFINITIVE_KEY]), axis=1)
+        return self.aim_df.apply(lambda row: self.get_aim_category(row[AIM_INFINITIVE_KEY]), axis=1)
 
     def __process_aim(self, aim_infinitive):
         aim_id = get_aim_infinitive_id(aim_infinitive)
