@@ -15,7 +15,7 @@ CATEGORY_KEY = 'category'
 XML_NUM = 'xml_num'
 
 
-def sentence_anots_generator(anot_df):
+def inst_gram_sentence_generator(anot_df):
     is_sep = anot_df[CATEGORY_KEY] == 'SEPARATOR'
     sep_rows = [i for i, x in enumerate(is_sep) if x]
     sep_pairs = [(sep_rows[i] + 1, sep_rows[i + 1]) for i in range(len(sep_rows) - 1)]
@@ -26,7 +26,7 @@ def sentence_anots_generator(anot_df):
 
 
 def print_stats(anot_df):
-    for i, sentence in enumerate(sentence_anots_generator(anot_df)):
+    for i, sentence in enumerate(inst_gram_sentence_generator(anot_df)):
         active_actor_num = sum(sentence[CATEGORY_KEY] == ATTRIBUTE_KEY)
         deontic_num = sum(sentence[CATEGORY_KEY] == DEONTIC_KEY)
         aim_num = sum(sentence[CATEGORY_KEY] == AIM_KEY)
@@ -49,19 +49,24 @@ def anot_text_generator(senetence_anots, anot_type):
         yield row['text']
 
 
-def relational_sentence_generator(anot_df):
+def relational_sentence_generator(ist_gram_sentence_df, sentence_idx):
     # It returns each possible combination of entities (does a cartesian product). Therefore we call it Cogito XD.
-    for i, senetence_anots in enumerate(sentence_anots_generator(anot_df)):
-        for active_actor in anot_text_generator(senetence_anots, ATTRIBUTE_KEY):
-            for aim in anot_text_generator(senetence_anots, AIM_KEY):
-                for deontic in anot_text_generator(senetence_anots, DEONTIC_KEY):
-                    for ac in anot_text_generator(senetence_anots, ACTIVE_CONDITION_KEY):
-                        for method in anot_text_generator(senetence_anots, METHOD_KEY):
-                            for passive_actor in anot_text_generator(senetence_anots, ACTOR_KEY):
-                                for obj in anot_text_generator(senetence_anots, OBJECT_KEY):
-                                    # TODO: replace None with aim_category
-                                    yield (i+1, active_actor, aim, None, deontic, ac, method, passive_actor, obj)
+    for active_actor in anot_text_generator(ist_gram_sentence_df, ATTRIBUTE_KEY):
+        for aim in anot_text_generator(ist_gram_sentence_df, AIM_KEY):
+            for deontic in anot_text_generator(ist_gram_sentence_df, DEONTIC_KEY):
+                for ac in anot_text_generator(ist_gram_sentence_df, ACTIVE_CONDITION_KEY):
+                    for method in anot_text_generator(ist_gram_sentence_df, METHOD_KEY):
+                        for passive_actor in anot_text_generator(ist_gram_sentence_df, ACTOR_KEY):
+                            for obj in anot_text_generator(ist_gram_sentence_df, OBJECT_KEY):
+                                # TODO: replace None with aim_category
+                                yield (sentence_idx+1, active_actor, aim, None, deontic, ac, method, passive_actor, obj)
 
+
+def process_sentence(ist_gram_sentence_df, sentence_idx):
+    rel_sentence_list = []
+    for rel_sentence in relational_sentence_generator(ist_gram_sentence_df, sentence_idx):
+        rel_sentence_list.append(rel_sentence)
+    return rel_sentence_list
 
 def read_xmls(xml_directory):
     parser = XML_parser.MAE_parser()
@@ -83,8 +88,8 @@ def main(xml_directory, output_file):
     anot_df = read_xmls(xml_directory)
     # print_stats(anot_df)
     relational_sentences_list = []
-    for i, sentence in enumerate(relational_sentence_generator(anot_df)):
-        relational_sentences_list.append(sentence)
+    for i, sentence_df in enumerate(inst_gram_sentence_generator(anot_df)):
+        relational_sentences_list.extend(process_sentence(sentence_df, i))
     df = pd.DataFrame(relational_sentences_list, columns=['sentence_num', 'active_actor', 'aim', 'aim_category',
                                                           'deontic', 'active_condition', 'method', 'passive_actor',
                                                           'object'])
