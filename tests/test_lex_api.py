@@ -1,30 +1,54 @@
-from unittest import TestCase
-
 import pytest
-from .context import lex_api
+from unittest import mock
+
+from aim_category import lex_api
+from tests.mocked_api import get_mocked_response
+
+TOOLS = [lex_api.MORFEUSZ]#, lex_api.PLWORDNET]
+@pytest.mark.parametrize("tool", TOOLS)
+def test_create_api_post_request(tool):
+    resp = lex_api.create_api_post_request(lex_api.BASE_URL,
+                                           json={"task": lex_api.ALL, "tool": tool, "lexeme": "jestem"})
+    assert resp
+
 
 AIM_TO_STANDARDIZE = [
-    ("nie podoba się", "nie podobać się"),
+    ("nie podoba się", "podobać się"),
     ("robi się", "robić się"),
-    ("nie pracuje", "nie pracować"),
+    ("nie pracuje", "pracować"),
     ("dmucha", "dmuchać"),
     ("regulamin organizacyjny", None),
     ("ma", "mieć"),
     ("uda", "udać"),
-    ("nie uda się", "nie udać się")
+    ("nie uda się", "udać się")
 ]
-
-
 @pytest.mark.parametrize("aim_input, aim_output", AIM_TO_STANDARDIZE)
-def test_get_verb_standard_form(aim_input, aim_output):
-    standardized_aim = lex_api.get_verb_standard_form(aim_input)
+def test_get_verb_infinitive_form(aim_input, aim_output):
+    standardized_aim = lex_api.get_verb_infinitive_form(aim_input)
     assert standardized_aim == aim_output
 
 
-def test_get_aim_id():
+@mock.patch('aim_category.lex_api.create_api_post_request', return_value=get_mocked_response("wybierać się"))
+def test_get_aim_infinitive_id(mocked_request):
+    synset_id = lex_api.get_aim_infinitive_id("wybierać się")
+    assert synset_id == 67547
+
+
+@mock.patch('aim_category.lex_api.create_api_post_request', return_value=get_mocked_response(""))
+def test_get_ancestors(mocked_request):
     pass
 
 
-def test_get_best_hiponim():
-    pass
+HYPONIMS =[
+    ([[56063, "{udawać_się.1(36:ruch), [+ 1 unit(s)]}"]], (56063, "udawać_się"))
+]
+@pytest.mark.parametrize("hyponim, output", HYPONIMS)
+def test_get_best_hiponim(hyponim, output):
+    ret_output = lex_api.get_best_hiponim(hyponim)
+    assert ret_output == output
 
+
+def test_get_domain_synset():
+    relevant_sysnet = get_mocked_response("wybierać się")[lex_api.RESULTS][lex_api.SYNSETS][1]
+    domain_synset = lex_api.get_domain_synset(get_mocked_response("wybierać się"))
+    assert relevant_sysnet == domain_synset

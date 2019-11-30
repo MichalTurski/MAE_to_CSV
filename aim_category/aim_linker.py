@@ -10,19 +10,21 @@ AIM_INFINITIVE_KEY = 'aim_infinitive'
 AIM_CAT_KEY = 'aim_category'
 NONE_CATEGORY = None
 
+
 class AimLinker:
-    def __init__(self, df):
+    def __init__(self, df, words_list=()):
         self.aim_df = df
+        self.words_set = set(words_list)
         self.aim_dict = {}
         self.aim_id_2_aim_name = {}
         self.aim_name_2_aim_id = {}
-        self.aim_to_aim_infinitive = {NONE_CATEGORY_KEY: None}
+        self.aim_to_aim_infinitive = {}
         self.__create_aim_dict()
 
     def get_aim_category(self, aim):
-        # TODO: refactor code in order not to call API twice
         if not aim:
             return None
+        # TODO: support negation
         if aim not in self.aim_to_aim_infinitive:
             self.aim_to_aim_infinitive[aim] = get_verb_infinitive_form(aim)
         aim_infinitive = self.aim_to_aim_infinitive[aim]
@@ -49,7 +51,10 @@ class AimLinker:
         self.aim_df.drop_duplicates(AIM_INFINITIVE_KEY, inplace=True)
 
     def __create_standardized_aim_column(self):
-        return self.aim_df.apply(lambda row: get_verb_infinitive_form(row[AIM_KEY]), axis=1)
+        standardized_aim_column = self.aim_df.apply(lambda row: get_verb_infinitive_form(row[AIM_KEY]), axis=1)
+        self.aim_to_aim_infinitive = {v[AIM_KEY]: v[AIM_INFINITIVE_KEY] for (k, v) in standardized_aim_column.iterrows()}
+        self.aim_to_aim_infinitive[NONE_CATEGORY_KEY] = NONE_CATEGORY
+        return standardized_aim_column
 
     def __create_aim_category_column(self):
         return self.aim_df.apply(lambda row: self.get_aim_category(row[AIM_INFINITIVE_KEY]), axis=1)
@@ -61,6 +66,7 @@ class AimLinker:
         self.__add_aim_ancestor(aim_infinitive, aim_id)
 
     def __add_aim_ancestor(self, aim_infinitive, aim_id):
+        # TODO: also - allow user add predefined aim_categories by file
         ancestors = self.get_ancestors(aim_infinitive)
         if ancestors:
             ancestor_aim_id, ancestor_aim_name = ancestors[-1]
