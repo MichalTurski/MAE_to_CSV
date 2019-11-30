@@ -3,6 +3,7 @@ import xmlschema
 import pandas as pd
 import re
 
+
 class MAE_parser:
     def __init__(self):
         curr_path = os.path.dirname(os.path.abspath(__file__))
@@ -33,7 +34,3 @@ class MAE_parser:
         anot_df.sort_values(by=['begin'], inplace=True)
         anot_df.reset_index(drop=True, inplace=True)
         return anot_df
-
-
-
-
