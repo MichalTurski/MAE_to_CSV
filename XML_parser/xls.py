@@ -39,10 +39,11 @@ class MAEToXLSParser:
         all_spans = []
         for tag in self._tags.keys():
             for row in self._tags[tag]:
-                spans = [int(span) for span in row[SPANS_KEY].split('~')]
+                for span_set in row[SPANS_KEY].split(','):
+                    spans = [int(span) for span in span_set.split('~')]
 
-                properties = [row[key] for key in row.keys() if key not in BASE_KEYS]
-                all_spans.append((spans[0], spans[1], tag, properties))
+                    properties = [row[key] for key in row.keys() if key not in BASE_KEYS]
+                    all_spans.append((spans[0], spans[1], tag, properties))
 
         all_spans.sort(key=lambda x: x[0])
 
@@ -80,8 +81,8 @@ class MAEToXLSParser:
                 output.append(current_row)
                 current_row = ""
 
-            start = sorted_spans[i][0]
-            end = sorted_spans[i][1]
+            start = sorted_spans[i][0] - 1
+            end = sorted_spans[i][1] + 1
 
             if properties:
                 opening_tag = f"<{tag} {properties}>"
