@@ -18,5 +18,6 @@ class XLS_parser:
             soup = bs(sentence[0], 'html.parser')
             for tag in soup:
                 if isinstance(tag, bs4.element.Tag):
-                    anots_list.append((tag.name, tag.text))
+                    text = tag.text.replace('\n', ' ').replace('  ', ' ')
+                    anots_list.append((tag.name, text))
             yield pd.DataFrame(anots_list, columns=[CATEGORY_KEY, TEXT_KEY])

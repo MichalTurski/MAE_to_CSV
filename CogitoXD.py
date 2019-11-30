@@ -23,8 +23,7 @@ def anot_text_generator(senetence_anots, anot_type):
         if df.empty:
             df = df.append(pd.Series(), ignore_index=True)
     for _, row in df.iterrows():
-        if isinstance(row[TEXT_KEY], str):
-            yield row[TEXT_KEY].replace('\n', ' ').replace('  ', ' ')
+        yield row[TEXT_KEY]
 
 
 def relational_sentence_generator(inst_gram_sentence_df, sentence_idx, aim_linker):
