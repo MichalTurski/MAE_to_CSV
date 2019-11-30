@@ -100,7 +100,7 @@ def create_aim_linker(df):
 @click.command()
 @click.argument('xml_directory', type=click.Path(exists=True))
 @click.argument('output_file', type=click.File('w'))
-def main(xml_directory, output_file):
+def cogito(xml_directory, output_file):
     anot_df = read_xmls(xml_directory)
     # print_stats(anot_df)
     aim_linker = create_aim_linker(anot_df)
@@ -114,6 +114,6 @@ def main(xml_directory, output_file):
 
 
 if __name__ == '__main__':
-    main()
+    cogito()
 
 # print(anot_df)
