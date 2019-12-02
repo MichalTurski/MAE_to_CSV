@@ -33,4 +33,5 @@ class XLS_parser:
             to_ret = self.anots_df.loc[self.anots_df[SENTENCE_KEY] == sent_id]
             yield to_ret
 
-
+    def get_sentence_num(self):
+        return self.anots_df[SENTENCE_KEY].max()

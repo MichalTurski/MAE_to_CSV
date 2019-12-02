@@ -29,7 +29,8 @@ def anot_text_generator(senetence_anots, anot_type):
 def relational_sentence_generator(inst_gram_sentence_df, aim_linker):
     # It returns each possible combination of entities (does a cartesian product). Therefore we call it Cogito XD.
     if not inst_gram_sentence_df.empty:
-        sentence_id = inst_gram_sentence_df[SENTENCE_KEY]
+        sentence_id = inst_gram_sentence_df[SENTENCE_KEY].iloc[0]  # Since all id comes from the same sentence, they
+        # are the same
         for active_actor, aim, deontic, ac, method, passive_actor, obj in itertools.product(
                 *get_sentence_anots(inst_gram_sentence_df)):
             # yield (sentence_id, active_actor, aim, aim_linker.get_aim_category(aim), deontic, ac, method,
@@ -67,7 +68,7 @@ def cogito(xls_file, output_file):
     # aim_linker = create_aim_linker(anot_df)
     aim_linker = None
     relational_sentences_list = []
-    for inst_gram_sentence_df in xls_parser.inst_gram_sentence_generator():
+    for inst_gram_sentence_df in tqdm(xls_parser.inst_gram_sentence_generator(), total=xls_parser.get_sentence_num()):
         relational_sentences_list.extend(process_sentence(inst_gram_sentence_df, aim_linker))
     df = pd.DataFrame(relational_sentences_list, columns=['sentence_num', 'active_actor', 'aim', 'aim_category',
                                                           'deontic', 'active_condition', 'method', 'passive_actor',
