@@ -5,7 +5,7 @@ from tqdm import tqdm
 
 from aim_category.aim_linker import AimLinker
 import XLS_parser.XLS_parser as XLS_parser
-from XLS_parser.XLS_parser import CATEGORY_KEY, TEXT_KEY
+from XLS_parser.XLS_parser import CATEGORY_KEY, TEXT_KEY, SENTENCE_KEY
 
 METHOD_KEY = 'method'
 ACTIVE_CONDITION_KEY = 'activcondition'
@@ -26,13 +26,15 @@ def anot_text_generator(senetence_anots, anot_type):
         yield row[TEXT_KEY]
 
 
-def relational_sentence_generator(inst_gram_sentence_df, sentence_idx, aim_linker):
+def relational_sentence_generator(inst_gram_sentence_df, aim_linker):
     # It returns each possible combination of entities (does a cartesian product). Therefore we call it Cogito XD.
-    for active_actor, aim, deontic, ac, method, passive_actor, obj in itertools.product(
-            *get_sentence_anots(inst_gram_sentence_df)):
-        # yield (sentence_idx + 1, active_actor, aim, aim_linker.get_aim_category(aim), deontic, ac, method,
-        yield (sentence_idx + 1, active_actor, aim, None, deontic, ac, method,
-               passive_actor, obj)
+    if not inst_gram_sentence_df.empty:
+        sentence_id = inst_gram_sentence_df[SENTENCE_KEY]
+        for active_actor, aim, deontic, ac, method, passive_actor, obj in itertools.product(
+                *get_sentence_anots(inst_gram_sentence_df)):
+            # yield (sentence_id, active_actor, aim, aim_linker.get_aim_category(aim), deontic, ac, method,
+            yield (sentence_id, active_actor, aim, None, deontic, ac, method,
+                   passive_actor, obj)
 
 
 def get_sentence_anots(senetence_anots):
@@ -45,9 +47,9 @@ def get_sentence_anots(senetence_anots):
             anot_text_generator(senetence_anots, OBJECT_KEY))
 
 
-def process_sentence(inst_gram_sentence_df, sentence_idx, aim_linker):
+def process_sentence(inst_gram_sentence_df, aim_linker):
     relational_sentence_list = []
-    for rel_sentence in relational_sentence_generator(inst_gram_sentence_df, sentence_idx, aim_linker):
+    for rel_sentence in relational_sentence_generator(inst_gram_sentence_df, aim_linker):
         relational_sentence_list.append(rel_sentence)
     return relational_sentence_list
 
@@ -65,8 +67,8 @@ def cogito(xls_file, output_file):
     # aim_linker = create_aim_linker(anot_df)
     aim_linker = None
     relational_sentences_list = []
-    for i, inst_gram_sentence_df in enumerate(xls_parser.inst_gram_sentence_generator()):
-        relational_sentences_list.extend(process_sentence(inst_gram_sentence_df, i, aim_linker))
+    for inst_gram_sentence_df in xls_parser.inst_gram_sentence_generator():
+        relational_sentences_list.extend(process_sentence(inst_gram_sentence_df, aim_linker))
     df = pd.DataFrame(relational_sentences_list, columns=['sentence_num', 'active_actor', 'aim', 'aim_category',
                                                           'deontic', 'active_condition', 'method', 'passive_actor',
                                                           'object'])
