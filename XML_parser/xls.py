@@ -70,19 +70,19 @@ class MAEToXLSParser:
 
         sorted_spans = self._get_sorted_tags_spans()
 
-        output = []
-        current_row = self._text[:sorted_spans[0][0]]
+        output = ""
+        separators_idx = []
 
         for i in range(0, len(sorted_spans)):
             tag = sorted_spans[i][2]
             properties = " ".join(sorted_spans[i][3])
+            start = sorted_spans[i][0]
+            end = sorted_spans[i][1]
 
-            if tag == SEPARATOR_TAG:
-                output.append(current_row)
-                current_row = ""
-
-            start = sorted_spans[i][0] - 1
-            end = sorted_spans[i][1] + 1
+            if i > 0:
+                end_prev = sorted_spans[i - 1][1]
+            else:
+                end_prev = 0
 
             if properties:
                 opening_tag = f"<{tag} {properties}>"
@@ -90,11 +90,20 @@ class MAEToXLSParser:
                 opening_tag = f"<{tag}>"
             closing_tag = f"</{tag}>"
 
-            current_row += opening_tag + self._text[start:end] + closing_tag
+            output += self._text[end_prev:start]
 
-        df = pd.DataFrame(output, columns=['statement'])
+            if tag == SEPARATOR_TAG: # store where are the separators
+                separators_idx.append(len(output))
+
+            output += opening_tag + self._text[start:end] + closing_tag
+
+        output += self._text[end:]
+        output_rows = []
+        start_split = 0
+        # split the text by separators
+        for separator_start in separators_idx:
+            output_rows.append(output[start_split: separator_start])
+            start_split = separator_start
+
+        df = pd.DataFrame(output_rows, columns=['statement'])
         df.to_excel(output_path, sheet_name='mae_xml', index=False)
-
-
-
-
