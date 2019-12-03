@@ -44,20 +44,18 @@ class AimLinker:
                 self.__process_aim(aim_infinitive)
 
         self.aim_df[AIM_CAT_KEY] = self.__create_aim_category_column()
-        # print(self.aim_df.describe(include='all'))
-        # print(self.aim_df.head())
 
     def __initialize_aim_df(self):
         self.aim_df.drop_duplicates(AIM_KEY, inplace=True)
-        self.aim_df[AIM_INFINITIVE_KEY] = self.__create_standardized_aim_column()
+        self.aim_df[AIM_INFINITIVE_KEY] = self.__create_aim_infinitive_column()
         self.aim_df.drop_duplicates(AIM_INFINITIVE_KEY, inplace=True)
 
-    def __create_standardized_aim_column(self):
-        standardized_aim_column = self.aim_df.apply(lambda row: get_verb_infinitive_form(row[AIM_KEY]), axis=1)
-        # TODO: fill aim_to_aim_infinitive dict to minimalize API calls. Not working, becouse standardized_aim_column is Series, does not have iterrows().
-        # self.aim_to_aim_infinitive = {v[AIM_KEY]: v[AIM_INFINITIVE_KEY] for (k, v) in standardized_aim_column.iterrows()}
+    def __create_aim_infinitive_column(self):
+        aim_infinitive_column = self.aim_df.apply(lambda row: get_verb_infinitive_form(row[AIM_KEY]), axis=1)
+        # TODO: fill aim_to_aim_infinitive dict to minimalize API calls. Not working, becouse aim_infinitive_column is Series, does not have iterrows().
+        # self.aim_to_aim_infinitive = {v[AIM_KEY]: v[AIM_INFINITIVE_KEY] for (k, v) in aim_infinitive_column.iterrows()}
         self.aim_to_aim_infinitive[NONE_CATEGORY_KEY] = NONE_CATEGORY
-        return standardized_aim_column
+        return aim_infinitive_column
 
     def __create_aim_category_column(self):
         return self.aim_df.apply(lambda row: self.get_aim_category(row[AIM_INFINITIVE_KEY]), axis=1)
@@ -87,4 +85,3 @@ class AimLinker:
     def __add_aim_name_2_aim_id_if_not_present(self, aim_name, aim_id):
         self.aim_name_2_aim_id = add_if_not_present(aim_name, aim_id, self.aim_name_2_aim_id)
 
-# linker = AimLinker(pd.read_csv("out.csv"))
