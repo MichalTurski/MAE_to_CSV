@@ -256,8 +256,25 @@ resp_wybierac = {
     }
 }
 
+resp_uwazac = {
+    'input': {
+        'task': 'all',
+        'lexeme': 'uważać się',
+        'tool': 'plwordnet'
+    },
+    'totaltime': 0.371,
+    'time': 0.3623850345611572,
+    'error': '',
+    'results': {
+        'synsets': [],
+        'href': 'http://plwordnet.pwr.wroc.pl/wordnet/'
+    }
+}
+
 
 def get_mocked_response(lexeme):
     if lexeme == "wybierać się":
         return resp_wybierac
+    elif lexeme == "uważać się":
+        return resp_uwazac
     return {}

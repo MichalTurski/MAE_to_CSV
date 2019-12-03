@@ -74,7 +74,8 @@ def get_aim_infinitive_id(aim_infinitive):
         # TODO: change to offline when possible, to API when possible
         resp = create_api_post_request(BASE_URL, json={"task": ALL, "tool": PLWORDNET, "lexeme": aim_infinitive})
         synset = get_domain_synset(resp)
-        return synset[ID]
+        if ID in synset.keys():
+            return synset[ID]
     return NONE_CATEGORY_KEY
 
 
@@ -117,7 +118,7 @@ def get_best_hiponim(hiponimia):
 def get_related_synsets(resp):
     try:
         return get_domain_synset(resp)[RELATED]
-    except IndexError:
+    except (IndexError, KeyError):
         return None
 
 
@@ -126,5 +127,7 @@ def get_domain_synset(resp):
         domain_id = get_synset_domain(synset[SYNSET_NAME])
         if domain_id == GI_DOMAIN:
             return synset
-    return resp[RESULTS][SYNSETS][0]
-
+    try:
+        return resp[RESULTS][SYNSETS][0]
+    except IndexError:
+        return {}

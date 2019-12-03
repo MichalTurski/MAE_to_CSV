@@ -2,6 +2,7 @@ import pytest
 from unittest import mock
 
 from aim_category import lex_api
+from aim_category.lex_api import NONE_CATEGORY_KEY
 from tests.mocked_api import get_mocked_response
 
 TOOLS = [lex_api.MORFEUSZ]#, lex_api.PLWORDNET]
@@ -34,6 +35,13 @@ def test_get_aim_infinitive_id(mocked_request):
     assert synset_id == 67547
 
 
+@mock.patch('aim_category.lex_api.create_api_post_request', return_value=get_mocked_response("uważać się"))
+def test_get_aim_infinitive_id2(mocked_request):
+    expected = NONE_CATEGORY_KEY
+    synset_id = lex_api.get_aim_infinitive_id("uważać się")
+    assert expected == synset_id
+
+
 @mock.patch('aim_category.lex_api.create_api_post_request', return_value=get_mocked_response(""))
 def test_get_ancestors(mocked_request):
     pass
@@ -52,3 +60,16 @@ def test_get_domain_synset():
     relevant_sysnet = get_mocked_response("wybierać się")[lex_api.RESULTS][lex_api.SYNSETS][1]
     domain_synset = lex_api.get_domain_synset(get_mocked_response("wybierać się"))
     assert relevant_sysnet == domain_synset
+
+
+# infinitive not in wordnet
+def test_get_domain_synset2():
+    expected = {}
+    response = lex_api.get_domain_synset(get_mocked_response("uważać się"))
+    assert expected == response
+
+
+def test_get_related_synsets():
+    expected = None
+    response = lex_api.get_related_synsets(get_mocked_response("uważać się"))
+    assert expected == response
