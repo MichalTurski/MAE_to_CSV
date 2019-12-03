@@ -23,11 +23,13 @@ class AimLinker:
 
     def get_aim_category(self, aim):
         if not aim:
-            return None
+            return NONE_CATEGORY
         # TODO: support negation
         if aim not in self.aim_to_aim_infinitive:
             self.aim_to_aim_infinitive[aim] = get_verb_infinitive_form(aim)
         aim_infinitive = self.aim_to_aim_infinitive[aim]
+        if not aim_infinitive:
+            return NONE_CATEGORY
         aim_id = self.aim_name_2_aim_id[aim_infinitive]
         return self.aim_dict[aim_id]
 
@@ -52,7 +54,8 @@ class AimLinker:
 
     def __create_standardized_aim_column(self):
         standardized_aim_column = self.aim_df.apply(lambda row: get_verb_infinitive_form(row[AIM_KEY]), axis=1)
-        self.aim_to_aim_infinitive = {v[AIM_KEY]: v[AIM_INFINITIVE_KEY] for (k, v) in standardized_aim_column.iterrows()}
+        # TODO: fill aim_to_aim_infinitive dict to minimalize API calls. Not working, becouse standardized_aim_column is Series, does not have iterrows().
+        # self.aim_to_aim_infinitive = {v[AIM_KEY]: v[AIM_INFINITIVE_KEY] for (k, v) in standardized_aim_column.iterrows()}
         self.aim_to_aim_infinitive[NONE_CATEGORY_KEY] = NONE_CATEGORY
         return standardized_aim_column
 
