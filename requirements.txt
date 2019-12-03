@@ -4,3 +4,6 @@ pandas
 xmlschema
 requests
 pytest
+xlwt
+BeautifulSoup4
+xlrd
