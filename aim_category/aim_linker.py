@@ -15,11 +15,12 @@ class AimLinker:
     def __init__(self, df, words_list=()):
         self.aim_df = df
         self.words_set = set(words_list)
-        self.aim_dict = {}
         self.aim_id_2_aim_name = {}
         self.aim_name_2_aim_id = {}
         self.aim_to_aim_infinitive = {}
-        self.__create_aim_dict()
+        self.aim_dict = {}
+        self.__initialize_aim_df()
+        self.__process_aims()
 
     def get_aim_category(self, aim):
         if not aim:
@@ -36,9 +37,7 @@ class AimLinker:
     def get_ancestors(self, standardized_aim):
         return get_ancestors(standardized_aim)
 
-    def __create_aim_dict(self):
-        self.__initialize_aim_df()
-
+    def __process_aims(self):
         for aim_infinitive in tqdm(self.aim_df[AIM_INFINITIVE_KEY]):
             if aim_infinitive:
                 self.__process_aim(aim_infinitive)
