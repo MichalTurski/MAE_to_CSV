@@ -33,8 +33,7 @@ def relational_sentence_generator(inst_gram_sentence_df, aim_linker):
         # are the same
         for active_actor, aim, deontic, ac, method, passive_actor, obj in itertools.product(
                 *get_sentence_anots(inst_gram_sentence_df)):
-            # yield (sentence_id, active_actor, aim, aim_linker.get_aim_category(aim), deontic, ac, method,
-            yield (sentence_id, active_actor, aim, None, deontic, ac, method,
+            yield (sentence_id, active_actor, aim, aim_linker.get_aim_category(aim), deontic, ac, method,
                    passive_actor, obj)
 
 
@@ -65,8 +64,7 @@ def create_aim_linker(df):
 @click.argument('output_file', type=click.File('w'))
 def cogito(xls_file, output_file):
     xls_parser = XLS_parser.XLS_parser(xls_file)
-    # aim_linker = create_aim_linker(anot_df)
-    aim_linker = None
+    aim_linker = create_aim_linker(xls_parser.anots_df)
     relational_sentences_list = []
     for inst_gram_sentence_df in tqdm(xls_parser.inst_gram_sentence_generator(), total=xls_parser.get_sentence_num()):
         relational_sentences_list.extend(process_sentence(inst_gram_sentence_df, aim_linker))
@@ -78,5 +76,3 @@ def cogito(xls_file, output_file):
 
 if __name__ == '__main__':
     cogito()
-
-# print(anot_df)
