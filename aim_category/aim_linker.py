@@ -13,13 +13,12 @@ NONE_CATEGORY = None
 
 class AimLinker:
     def __init__(self, df, words_list=()):
-        self.aim_df = df
         self.words_set = set(words_list)
         self.aim_id_2_aim_name = {}
         self.aim_name_2_aim_id = {}
         self.aim_to_aim_infinitive = {}
         self.aim_dict = {}
-        self.__initialize_aim_df()
+        self.aim_df = self.__initialize_aim_df(df)
         self.__process_aims()
 
     def get_aim_category(self, aim):
@@ -44,13 +43,14 @@ class AimLinker:
 
         self.aim_df[AIM_CAT_KEY] = self.__create_aim_category_column()
 
-    def __initialize_aim_df(self):
-        self.aim_df.drop_duplicates(AIM_KEY, inplace=True)
-        self.aim_df[AIM_INFINITIVE_KEY] = self.__create_aim_infinitive_column()
-        self.aim_df.drop_duplicates(AIM_INFINITIVE_KEY, inplace=True)
+    def __initialize_aim_df(self, df):
+        df.drop_duplicates(AIM_KEY, inplace=True)
+        df[AIM_INFINITIVE_KEY] = self.__create_aim_infinitive_column(df)
+        df.drop_duplicates(AIM_INFINITIVE_KEY, inplace=True)
+        return df
 
-    def __create_aim_infinitive_column(self):
-        aim_infinitive_column = self.aim_df.apply(lambda row: get_verb_infinitive_form(row[AIM_KEY]), axis=1)
+    def __create_aim_infinitive_column(self, df):
+        aim_infinitive_column = df.apply(lambda row: get_verb_infinitive_form(row[AIM_KEY]), axis=1)
         # TODO: fill aim_to_aim_infinitive dict to minimalize API calls. Not working, becouse aim_infinitive_column is Series, does not have iterrows().
         # self.aim_to_aim_infinitive = {v[AIM_KEY]: v[AIM_INFINITIVE_KEY] for (k, v) in aim_infinitive_column.iterrows()}
         self.aim_to_aim_infinitive[NONE_CATEGORY_KEY] = NONE_CATEGORY
