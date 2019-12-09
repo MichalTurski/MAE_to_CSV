@@ -83,4 +83,3 @@ class AimLinker:
 
     def __add_aim_name_2_aim_id_if_not_present(self, aim_name, aim_id):
         self.aim_name_2_aim_id = add_if_not_present(aim_name, aim_id, self.aim_name_2_aim_id)
-

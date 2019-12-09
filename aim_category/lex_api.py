@@ -1,6 +1,7 @@
 import requests
 
 from aim_category.utils import get_simple_verb_form, get_synset_domain
+from aim_category.http_cache_client import HttpCacheClient
 
 BASE_URL = 'http://ws.clarin-pl.eu/lexrest/lex'
 
@@ -27,6 +28,8 @@ NONE_CATEGORY_KEY = -1
 MORFEUSZ_VERB_FLAG = 'fin'
 MORFEUSZ_INF_FLAG = 'inf'
 
+http_client = HttpCacheClient(BASE_URL)
+
 
 class ApiError(Exception):
     def __init__(self, status):
@@ -37,10 +40,7 @@ class ApiError(Exception):
 
 
 def create_api_post_request(BASE_URL, json):
-    resp = requests.post(BASE_URL, json=json)
-    if resp.status_code != 200:
-        raise ApiError(resp.status_code)
-    return resp.json()
+    return http_client.post(payload=json)
 
 
 def get_verb_infinitive_form(aim):
