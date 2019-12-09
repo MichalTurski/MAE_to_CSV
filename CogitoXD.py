@@ -2,6 +2,7 @@ import itertools
 import click
 import pandas as pd
 from tqdm import tqdm
+from pathlib import Path
 
 from aim_category.aim_linker import AimLinker
 import XLS_parser.XLS_parser as XLS_parser
@@ -61,7 +62,7 @@ def create_aim_linker(df):
 
 @click.command()
 @click.argument('xls_file', type=click.File('rb'))
-@click.argument('output_file', type=click.File('w'))
+@click.argument('output_file', type=str)
 def cogito(xls_file, output_file):
     xls_parser = XLS_parser.XLS_parser(xls_file)
     aim_linker = create_aim_linker(xls_parser.anots_df)
@@ -71,7 +72,9 @@ def cogito(xls_file, output_file):
     df = pd.DataFrame(relational_sentences_list, columns=['sentence_num', 'active_actor', 'aim', 'aim_category',
                                                           'deontic', 'active_condition', 'method', 'passive_actor',
                                                           'object'])
-    df.to_csv(output_file, index=False)
+    target_path = Path(output_file).expanduser().absolute()
+    target_path.parents[0].mkdir(parents=True, exist_ok=True)
+    df.to_csv(str(target_path), index=False)
 
 
 if __name__ == '__main__':
