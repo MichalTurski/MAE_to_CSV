@@ -1,9 +1,9 @@
 from tqdm import tqdm
 import pandas as pd
 
-from aim_category.lex_api import get_verb_infinitive_form, get_ancestors, get_aim_infinitive_id
-from aim_category.lex_api import NONE_CATEGORY_KEY
-from aim_category.utils import add_if_not_present
+from Cogito.aim_category.lex_api import get_verb_infinitive_form, get_ancestors, get_aim_infinitive_id
+from Cogito.aim_category.lex_api import NONE_CATEGORY_KEY
+from Cogito.aim_category.utils import add_if_not_present
 
 AIM_KEY = "text"
 AIM_INFINITIVE_KEY = 'aim_infinitive'
@@ -83,4 +83,3 @@ class AimLinker:
 
     def __add_aim_name_2_aim_id_if_not_present(self, aim_name, aim_id):
         self.aim_name_2_aim_id = add_if_not_present(aim_name, aim_id, self.aim_name_2_aim_id)
-

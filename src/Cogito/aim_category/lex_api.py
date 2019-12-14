@@ -1,6 +1,7 @@
 import requests
 
-from aim_category.utils import get_simple_verb_form, get_synset_domain
+from Cogito.aim_category.utils import get_simple_verb_form, get_synset_domain
+from Cogito.aim_category.http_cache_client import HttpCacheClient
 
 BASE_URL = 'http://ws.clarin-pl.eu/lexrest/lex'
 
@@ -27,6 +28,8 @@ NONE_CATEGORY_KEY = -1
 MORFEUSZ_VERB_FLAG = 'fin'
 MORFEUSZ_INF_FLAG = 'inf'
 
+http_client = HttpCacheClient(BASE_URL)
+
 
 class ApiError(Exception):
     def __init__(self, status):
@@ -36,11 +39,8 @@ class ApiError(Exception):
         return f"ApiError: status={self.status}"
 
 
-def create_api_post_request(BASE_URL, json):
-    resp = requests.post(BASE_URL, json=json)
-    if resp.status_code != 200:
-        raise ApiError(resp.status_code)
-    return resp.json()
+def create_api_post_request(BASE_URL, payload):
+    return http_client.post(payload=payload)
 
 
 def get_verb_infinitive_form(aim):
@@ -57,7 +57,7 @@ def get_verb_infinitive_form(aim):
     if aim.find("się") > -1:
         found_sie = 1
 
-    resp = create_api_post_request(BASE_URL, json={"task": ALL, "tool": MORFEUSZ, "lexeme": aim_to_process})
+    resp = create_api_post_request(BASE_URL, payload={"task": ALL, "tool": MORFEUSZ, "lexeme": aim_to_process})
     list_of_words = resp[RESULTS][ANALYSE]
     for word_array in list_of_words:
         flags = word_array[2].split(":")
@@ -72,7 +72,7 @@ def get_verb_infinitive_form(aim):
 def get_aim_infinitive_id(aim_infinitive):
     if aim_infinitive:
         # TODO: change to offline when possible, to API when possible
-        resp = create_api_post_request(BASE_URL, json={"task": ALL, "tool": PLWORDNET, "lexeme": aim_infinitive})
+        resp = create_api_post_request(BASE_URL, payload={"task": ALL, "tool": PLWORDNET, "lexeme": aim_infinitive})
         synset = get_domain_synset(resp)
         if ID in synset.keys():
             return synset[ID]
@@ -87,7 +87,7 @@ def get_ancestors(aim):
     ancestors = hiponimia = []
     while best_ancestor_not_found(hiponimia, ancestors):
         # TODO: change to offline when possible, to API when possible
-        resp = create_api_post_request(BASE_URL, json={"task": ALL, "tool": PLWORDNET, "lexeme": aim})
+        resp = create_api_post_request(BASE_URL, payload={"task": ALL, "tool": PLWORDNET, "lexeme": aim})
         related = get_related_synsets(resp)
         if related:
             hiponimia = [] if HIPONIMIA not in related else related[HIPONIMIA]

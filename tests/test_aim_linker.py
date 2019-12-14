@@ -1,3 +1,3 @@
 import pytest
-from aim_category import aim_linker
+from Cogito.aim_category import aim_linker
 

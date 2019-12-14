@@ -1,6 +1,7 @@
 # Project exclude paths
 /venv/
 /data/
-
+# used for caching by http client
+/cache/
 .idea
 __pycache__
