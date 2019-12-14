@@ -7,3 +7,4 @@ pytest
 xlwt
 BeautifulSoup4
 xlrd
+pathlib
