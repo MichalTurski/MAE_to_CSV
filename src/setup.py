@@ -1,7 +1,7 @@
 import setuptools
 
 setuptools.setup(
-    name='mae2csv',
+    name='igcogito',
     version='1.0',
     description='',
     author='',
