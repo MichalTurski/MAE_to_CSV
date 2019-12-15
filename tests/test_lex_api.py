@@ -1,8 +1,8 @@
 import pytest
 from unittest import mock
 
-from Cogito.aim_category import lex_api
-from Cogito.aim_category.lex_api import NONE_CATEGORY_KEY
+from igcogito.aim_category import lex_api
+from igcogito.aim_category.lex_api import NONE_CATEGORY_KEY
 from tests.mocked_api import get_mocked_response
 
 TOOLS = [lex_api.MORFEUSZ]#, lex_api.PLWORDNET]
@@ -29,20 +29,20 @@ def test_get_verb_infinitive_form(aim_input, aim_output):
     assert standardized_aim == aim_output
 
 
-@mock.patch('Cogito.aim_category.lex_api.create_api_post_request', return_value=get_mocked_response("wybierać się"))
+@mock.patch('igcogito.aim_category.lex_api.create_api_post_request', return_value=get_mocked_response("wybierać się"))
 def test_get_aim_infinitive_id(mocked_request):
     synset_id = lex_api.get_aim_infinitive_id("wybierać się")
     assert synset_id == 67547
 
 
-@mock.patch('Cogito.aim_category.lex_api.create_api_post_request', return_value=get_mocked_response("uważać się"))
+@mock.patch('igcogito.aim_category.lex_api.create_api_post_request', return_value=get_mocked_response("uważać się"))
 def test_get_aim_infinitive_id2(mocked_request):
     expected = NONE_CATEGORY_KEY
     synset_id = lex_api.get_aim_infinitive_id("uważać się")
     assert expected == synset_id
 
 
-@mock.patch('Cogito.aim_category.lex_api.create_api_post_request', return_value=get_mocked_response(""))
+@mock.patch('igcogito.aim_category.lex_api.create_api_post_request', return_value=get_mocked_response(""))
 def test_get_ancestors(mocked_request):
     pass
 
