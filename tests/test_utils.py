@@ -1,5 +1,5 @@
 import pytest
-from Cogito.aim_category import utils
+from igcogito.aim_category import utils
 
 SYSNET_NAMES = [
     ("{wybierać_się.1(36:ruch), wyprawiać_się.1(36:ruch), uderzać.11(36:ruch)}", 36)

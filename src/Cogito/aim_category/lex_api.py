@@ -1,7 +1,7 @@
 import requests
 
-from Cogito.aim_category.utils import get_simple_verb_form, get_synset_domain
-from Cogito.aim_category.http_cache_client import HttpCacheClient
+from igcogito.aim_category.utils import get_simple_verb_form, get_synset_domain
+from igcogito.aim_category.http_cache_client import HttpCacheClient
 
 BASE_URL = 'http://ws.clarin-pl.eu/lexrest/lex'
 

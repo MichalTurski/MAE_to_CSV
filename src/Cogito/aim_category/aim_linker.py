@@ -1,9 +1,9 @@
 from tqdm import tqdm
 import pandas as pd
 
-from Cogito.aim_category.lex_api import get_verb_infinitive_form, get_ancestors, get_aim_infinitive_id
-from Cogito.aim_category.lex_api import NONE_CATEGORY_KEY
-from Cogito.aim_category.utils import add_if_not_present
+from igcogito.aim_category.lex_api import get_verb_infinitive_form, get_ancestors, get_aim_infinitive_id
+from igcogito.aim_category.lex_api import NONE_CATEGORY_KEY
+from igcogito.aim_category.utils import add_if_not_present
 
 AIM_KEY = "text"
 AIM_INFINITIVE_KEY = 'aim_infinitive'
