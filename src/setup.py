@@ -8,6 +8,6 @@ setuptools.setup(
     author_email='example@evil.com',
     packages=setuptools.find_packages(),
     entry_points={
-        'console_scripts': ['cogito = Cogito.CogitoXD:cogito']
+        'console_scripts': ['ig_cogito = Cogito.CogitoXD:cogito']
     }
 )
