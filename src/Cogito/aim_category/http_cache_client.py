@@ -6,7 +6,6 @@ from hashlib import md5
 from pathlib import Path
 
 
-
 class HttpCacheClient():
     def __init__(self, base_url):
         self.base_url = base_url
@@ -21,9 +20,8 @@ class HttpCacheClient():
         try:
             with open(self.file_cache_path, 'r', encoding='utf-8') as f:
                 self.cache = json.load(f)
-        except FileNotFoundError:
+        except (FileNotFoundError, json.decoder.JSONDecodeError):
             self.cache = {}
-            pass
 
     def __save_to_local_file(self):
         try:
