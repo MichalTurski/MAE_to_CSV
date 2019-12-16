@@ -4,9 +4,9 @@ import pandas as pd
 from tqdm import tqdm
 from pathlib import Path
 
-from Cogito.aim_category.aim_linker import AimLinker
-import Cogito.XLS_parser.XLS_parser as XLS_parser
-from Cogito.XLS_parser.XLS_parser import CATEGORY_KEY, TEXT_KEY, SENTENCE_KEY
+from igcogito.aim_category.aim_linker import AimLinker
+import igcogito.XLS_parser.XLS_parser as XLS_parser
+from igcogito.XLS_parser.XLS_parser import CATEGORY_KEY, TEXT_KEY, SENTENCE_KEY
 
 METHOD_KEY = 'method'
 ACTIVE_CONDITION_KEY = 'activcondition'
@@ -60,9 +60,6 @@ def create_aim_linker(df):
     return AimLinker(aim_df[['text']])
 
 
-@click.command()
-@click.argument('xls_file', type=click.File('rb'))
-@click.argument('output_file', type=str)
 def cogito(xls_file, output_file):
     xls_parser = XLS_parser.XLS_parser(xls_file)
     aim_linker = create_aim_linker(xls_parser.anots_df)
@@ -77,5 +74,12 @@ def cogito(xls_file, output_file):
     df.to_csv(str(target_path), index=False)
 
 
+@click.command()
+@click.argument('xls_file', type=click.File('rb'))
+@click.argument('output_file', type=str)
+def console_entry(xls_file, output_file):
+    cogito(xls_file, output_file)
+
+
 if __name__ == '__main__':
-    cogito()
+    console_entry()
