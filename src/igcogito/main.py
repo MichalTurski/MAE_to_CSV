@@ -7,6 +7,7 @@ from pathlib import Path
 from igcogito.aim_category.aim_linker import AimLinker
 import igcogito.XLS_parser.XLS_parser as XLS_parser
 from igcogito.XLS_parser.XLS_parser import CATEGORY_KEY, TEXT_KEY, SENTENCE_KEY
+from igcogito.XML_parser.xls import MAEToXLSParser
 
 METHOD_KEY = 'method'
 ACTIVE_CONDITION_KEY = 'activcondition'
@@ -74,11 +75,23 @@ def cogito(xls_file, output_file):
     df.to_csv(str(target_path), index=False)
 
 
+def xml_to_xls(mae_file, output_file):
+    mae_schema = str(Path(__file__).parents[0] / 'XML_parser' / 'mae_schema.xsd')
+    mae_parser = MAEToXLSParser(mae_schema, str(mae_file))
+    mae_parser.parse_xml(str(output_file))
+
 @click.command()
 @click.argument('xls_file', type=click.File('rb'))
 @click.argument('output_file', type=str)
 def console_entry(xls_file, output_file):
     cogito(xls_file, output_file)
+
+
+@click.command()
+@click.argument('mae_file', type=click.Path(exists=True))
+@click.argument('output_file', type=click.Path())
+def xml_to_xls_console_entry(mae_file, output_file):
+    xml_to_xls(mae_file, output_file)
 
 
 if __name__ == '__main__':

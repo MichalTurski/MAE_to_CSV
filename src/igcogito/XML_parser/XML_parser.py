@@ -2,12 +2,12 @@ import os
 import xmlschema
 import pandas as pd
 import re
+from pathlib import Path
 
 
 class MAE_parser:
     def __init__(self):
-        curr_path = os.path.dirname(os.path.abspath(__file__))
-        self.mae_schema = xmlschema.XMLSchema(os.path.join(curr_path, 'MAE.xsd'))
+        self.mae_schema = xmlschema.XMLSchema(str(Path(__file__).parents[0] / 'mae_schema.xsd'))
 
     @staticmethod
     def __category_to_df__(tags_dict, category):
