@@ -7,23 +7,14 @@
         <xs:element name="TAGS">
           <xs:complexType>
             <xs:sequence>
-              <xs:element maxOccurs="unbounded" name="SEPARATOR">
+              <xs:element minOccurs="0" maxOccurs="unbounded" name="SEPARATOR">
                 <xs:complexType>
                   <xs:attribute name="id" type="xs:string" use="required" />
                   <xs:attribute name="spans" type="xs:string" use="required" />
                   <xs:attribute name="text" type="xs:string" use="required" />
                 </xs:complexType>
               </xs:element>
-              <xs:element maxOccurs="unbounded" name="Attribute">
-                <xs:complexType>
-                  <xs:attribute name="id" type="xs:string" use="required" />
-                  <xs:attribute name="spans" type="xs:string" use="required" />
-                  <xs:attribute name="text" type="xs:string" use="required" />
-                  <xs:attribute name="komentarz" type="xs:string" use="optional" />
-
-                </xs:complexType>
-              </xs:element>
-              <xs:element maxOccurs="unbounded" name="Deontic">
+              <xs:element minOccurs="0" maxOccurs="unbounded" name="Attribute">
                 <xs:complexType>
                   <xs:attribute name="id" type="xs:string" use="required" />
                   <xs:attribute name="spans" type="xs:string" use="required" />
@@ -31,7 +22,7 @@
                   <xs:attribute name="komentarz" type="xs:string" use="optional" />
                 </xs:complexType>
               </xs:element>
-              <xs:element maxOccurs="unbounded" name="aIm">
+              <xs:element minOccurs="0" maxOccurs="unbounded" name="Deontic">
                 <xs:complexType>
                   <xs:attribute name="id" type="xs:string" use="required" />
                   <xs:attribute name="spans" type="xs:string" use="required" />
@@ -39,7 +30,15 @@
                   <xs:attribute name="komentarz" type="xs:string" use="optional" />
                 </xs:complexType>
               </xs:element>
-              <xs:element maxOccurs="unbounded" name="oBject">
+              <xs:element minOccurs="0" maxOccurs="unbounded" name="aIm">
+                <xs:complexType>
+                  <xs:attribute name="id" type="xs:string" use="required" />
+                  <xs:attribute name="spans" type="xs:string" use="required" />
+                  <xs:attribute name="text" type="xs:string" use="required" />
+                  <xs:attribute name="komentarz" type="xs:string" use="optional" />
+                </xs:complexType>
+              </xs:element>
+              <xs:element minOccurs="0" maxOccurs="unbounded" name="oBject">
                 <xs:complexType>
                   <xs:attribute name="id" type="xs:string" use="required" />
                   <xs:attribute name="spans" type="xs:string" use="required" />
@@ -48,16 +47,15 @@
                   <xs:attribute name="Voice" type="xs:string" use="optional" />
                 </xs:complexType>
               </xs:element>
-              <xs:element maxOccurs="unbounded" name="aCtor">
+              <xs:element minOccurs="0" maxOccurs="unbounded" name="aCtor">
                 <xs:complexType>
                   <xs:attribute name="id" type="xs:string" use="required" />
                   <xs:attribute name="spans" type="xs:string" use="required" />
                   <xs:attribute name="text" type="xs:string" use="required" />
                   <xs:attribute name="komentarz" type="xs:string" use="optional" />
-
                 </xs:complexType>
               </xs:element>
-              <xs:element maxOccurs="unbounded" name="ActivCondition">
+              <xs:element minOccurs="0" maxOccurs="unbounded" name="ActivCondition">
                 <xs:complexType>
                   <xs:attribute name="id" type="xs:string" use="required" />
                   <xs:attribute name="spans" type="xs:string" use="required" />
@@ -66,7 +64,7 @@
                   <xs:attribute name="komentarz" type="xs:string" use="optional" />
                 </xs:complexType>
               </xs:element>
-              <xs:element maxOccurs="unbounded" name="Method">
+              <xs:element minOccurs="0" maxOccurs="unbounded" name="Method">
                 <xs:complexType>
                   <xs:attribute name="id" type="xs:string" use="required" />
                   <xs:attribute name="spans" type="xs:string" use="required" />
